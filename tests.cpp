@@ -69,26 +69,33 @@ TEST(DequeTest, checkIntSort) {
     ASSERT_TRUE(std::is_sorted(d.rbegin(), d.rend()));
 }
 
+TEST(DequeTest, checkStrings) {
+    using std::string;
+    Deque<string> d;
+    for (size_t i = 0; i < 100; ++i)
+        d.push_back("Good evening!");
+    ASSERT_EQ(d.size(), 100);
+}
+
 TEST(DequeTest, checkStringSort) {
     using std::string;
     Deque<string> d;
-    for (size_t i = 0; i < 2; ++i) {
+    
+    for (size_t i = 0; i < 20000; ++i) {
         int x = rand();
-        string add = "";
+        string add("");
         while (x > 0) {
-            add.push_back(char(x % 10 + '0'));
+            add = char(x % 10) + add;
             x /= 10;
-        }   
-        //std::cout << add << '\n';
+        }
         if (add.empty())
             add.push_back('0');
-        reverse(add.begin(), add.end());
         d.push_back(add);
     }
-    /*std::sort(d.begin(), d.end());
+    std::sort(d.begin(), d.end());
     ASSERT_TRUE(std::is_sorted(d.begin(), d.end()));
     std::sort(d.begin(), d.end(), std::greater<string>());
-    ASSERT_TRUE(std::is_sorted(d.rbegin(), d.rend()));*/
+    ASSERT_TRUE(std::is_sorted(d.rbegin(), d.rend()));
 }
 
 TEST(DequeTest, pairSort) {
@@ -102,8 +109,42 @@ TEST(DequeTest, pairSort) {
     ASSERT_TRUE(std::is_sorted(d.rbegin(), d.rend()));
 }
 
+TEST(DequeTest, checkRandomAccessAndPushBack) {
+    const size_t DSIZE = 300;
+    Deque<int> d;
+    for (size_t i = 0; i <= DSIZE; ++i)
+        d.push_back(i);
+    std::vector<int> fibs;
+    size_t f0 = 1;
+    size_t f1 = 1;
+    fibs.push_back(f0);
+    fibs.push_back(f1);
+    while (true) {
+        size_t nf = f0 + f1;
+        if (nf > DSIZE)
+            break;
+        f0 = f1;
+        f1 = nf;
+        fibs.push_back(nf);
+    }
+    ASSERT_EQ(d[1], 1);
+    for (size_t i = 2; i < fibs.size(); ++i)
+        ASSERT_EQ(d[fibs[i]], d[fibs[i - 1]] + d[fibs[i - 2]]);
+}
+
 TEST(DequeTest, checkResize) {
-    
+    Deque<int> d;
+    const size_t add1 = 10000;
+    for (size_t iter = 0, curSize = add1; iter < 3; ++iter, curSize *= 2) { 
+        for (size_t i = 0; i < curSize; ++i)
+            d.push_back(rand());
+        for (size_t i = 0; i < 3 * curSize / 4; ++i)
+            d.pop_front();
+        size_t needSize = 0;
+        for (size_t i = 0, dsize = add1; i <= iter; ++i, dsize *= 2)
+            needSize += dsize / 4;
+        ASSERT_EQ(needSize, d.size());
+    }
 }
 
 int main(int argc, char **argv) {
